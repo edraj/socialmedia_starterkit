@@ -1,0 +1,64 @@
+{
+  "title": "Post",
+  "description": "User Post schema",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "shared_from": {
+      "title": "Original Post Shortname",
+      "type": "string"
+    },
+    "content": {
+      "title": "Content",
+      "description": "Post text content",
+      "type": "string"
+    },
+    "reacts": {
+      "title": "Reacts",
+      "description": "Reacts and its numbers",
+      "type": "object",
+      "properties": {
+        "like": {
+          "title": "like",
+          "type": "integer"
+        },
+        "laughing": {
+          "title": "laughing",
+          "type": "integer"
+        },
+        "love": {
+          "title": "love",
+          "type": "integer"
+        },
+        "care": {
+          "title": "care",
+          "type": "integer"
+        },
+        "sad": {
+          "title": "sad",
+          "type": "integer"
+        }
+      }
+    },
+    "rank": {
+      "title": "Post rank for news feed",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 99,
+      "default": 1
+    },
+    "num_of_shares": {
+      "title": "Number of shares",
+      "type": "integer",
+      "default": 0
+    },
+    "num_of_comments": {
+      "title": "Number of comments",
+      "type": "integer",
+      "default": 0
+    }
+  },
+  "required": [
+    "content"
+  ]
+}

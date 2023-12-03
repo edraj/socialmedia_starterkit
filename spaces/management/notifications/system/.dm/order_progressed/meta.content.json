@@ -1,0 +1,1 @@
+{"uuid":"40ecb7c7-6eb9-4a03-8781-fdcd7249bd11","shortname":"order_progressed","is_active":true,"tags":[],"created_at":"2023-11-02T18:43:21.212257","updated_at":"2023-11-02T18:43:21.212305","owner_shortname":"dmart","payload":{"content_type":"json","schema_shortname":"system_notification_request","body":"order_progressed.json"}}

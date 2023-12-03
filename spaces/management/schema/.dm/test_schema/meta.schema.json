@@ -1,0 +1,1 @@
+{"uuid":"45fcf4ba-0a59-4361-96e7-dd2b7128fbbf","shortname":"test_schema","is_active":true,"tags":[],"created_at":"2023-11-02T21:44:39.784327","updated_at":"2023-11-02T21:44:39.784352","owner_shortname":"dmart","payload":{"content_type":"json","schema_shortname":"meta_schema","checksum":"25527aea6098bdac8e49178b7b83a98ea774082e","body":"test_schema.json"}}

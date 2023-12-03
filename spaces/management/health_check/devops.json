@@ -1,0 +1,1 @@
+{"invalid_folders": [], "folders_report": {"supports": {"valid_entries": 1}, "workflows": {"invalid_entries": [{"issues": ["meta"], "uuid": "", "shortname": "candidate", "exception": "Can't access this meta /devops/workflows/candidate"}], "valid_entries": 1}, "schema": {"valid_entries": 3}}}

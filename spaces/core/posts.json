@@ -1,0 +1,39 @@
+{
+    "shortname_title": "Posts",
+    "content_schema_shortnames": [
+        "post"
+    ],
+    "content_resource_types": [
+        "content"
+    ],
+    "index_attributes": [
+        {
+            "key": "shortname",
+            "name": "name"
+        },
+        {
+            "key": "owner_shortname",
+            "name": "Owner"
+        },
+        {
+            "key": "content",
+            "name": "Text Content"
+        },
+        {
+            "key": "created_at",
+            "name": "Created At"
+        }
+    ],
+    "icon_closed": "",
+    "icon_opened": "",
+    "icon": "",
+    "filter": [],
+    "allow_create": true,
+    "expand_children": true,
+    "allow_update": true,
+    "allow_delete": true,
+    "use_media": true,
+    "allow_csv": true,
+    "append_subpath": "",
+    "allow_view": true
+}

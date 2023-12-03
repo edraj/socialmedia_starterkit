@@ -1,0 +1,17 @@
+{
+    "invalid_folders": [],
+    "folders_report": {
+        "posts": {
+            "valid_entries": 1
+        },
+        "workflows": {
+            "valid_entries": 1
+        },
+        "myfolder": {
+            "valid_entries": 1
+        },
+        "schema": {
+            "valid_entries": 4
+        }
+    }
+}
