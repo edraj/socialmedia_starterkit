@@ -1,3 +1,5 @@
+import io
+import json
 from factories.post import Post
 import requests
 from faker import Faker
@@ -8,6 +10,13 @@ fake = Faker()
 class PostSeeder:
     SPACE_NAME = "core"
     SUBPATH = "posts"
+    ATTACHMENTS = [
+        ("sample.mp4", "video/mp4"),
+        ("sample2.mp4", "video/mp4"),
+        ("sample1.jpeg", "image/jpeg"),
+        ("sample2.jpeg", "image/jpeg"),
+        ("sample3.jpg", "image/jpg"),
+    ]
 
     def __init__(self, url: str, token: str) -> None:
         self.url = url
@@ -69,6 +78,10 @@ class PostSeeder:
             # Create original post comments
             self.attach_comments(original_shortname, post["num_of_comments"])
 
+            # Randomly attach media
+            if fake.random_element(elements=[1, 0, 0]):
+                self.attach_media(original_shortname)
+
         print(f"Created {created_posts_count} post")
 
     def attach_comments(self, shortname: str, num_of_comments: int):
@@ -91,4 +104,33 @@ class PostSeeder:
                     ],
                 },
                 headers={"Authorization": f"Bearer {self.token}"},
+            )
+
+    def attach_media(self, shortname: str):
+        for i in range(fake.random_int(min=1, max=5)):
+            request_file = io.StringIO(
+                json.dumps(
+                    {
+                        "resource_type": "media",
+                        "shortname": "auto",
+                        "subpath": f"{self.SUBPATH}/{shortname}",
+                        "attributes": {"is_active": True},
+                    }
+                )
+            )
+            attachment = fake.random_element(self.ATTACHMENTS)
+            media_file = open(f"data/{attachment[0]}", "rb")
+            files = {
+                "request_record": ("record.json", request_file, "application/json"),
+                "payload_file": (
+                    media_file.name.split("/")[-1],
+                    media_file,
+                    attachment[1],
+                ),
+            }
+            res = requests.post(
+                url=f"{self.url}/managed/resource_with_payload",
+                headers={"Authorization": f"Bearer {self.token}"},
+                data={"space_name": self.SPACE_NAME},
+                files=files,
             )
