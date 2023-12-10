@@ -4,9 +4,9 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-    "shared_from": {
-      "title": "Original Post Shortname",
-      "type": "string"
+    "is_shared": {
+      "type": "boolean",
+      "default": false
     },
     "content": {
       "title": "Content",

@@ -43,6 +43,33 @@ class PostSeeder:
             ],
         }
 
+    def create_shares(self, original_post: dict):
+        # TODO: Create a Share attachment under the original post. Using /public/submit API 
+        # TODO: Create a shared post.
+        # TODO: Create a Relationship attachment under the shared post that refers to the original post. Using /public/submit API 
+        # shared_posts = Post.generate(
+        #     count=original_post["num_of_shares"], no_shares=True
+        # )
+        # for shared_post in shared_posts:
+        #     shared_post["is_shared"] = True
+        #     shared_req = requests.post(
+        #         url=f"{self.url}/managed/request",
+        #         json=self.post_request_body(shared_post),
+        #         headers={"Authorization": f"Bearer {self.token}"},
+        #     )
+        #     # Create shared post comments
+        #     shared_shortname = shared_req.json()["records"][0]["shortname"]
+        #     self.attach_comments(
+        #         shared_shortname,
+        #         shared_post["num_of_comments"],
+        #     )
+        #     # Create shared post reactions
+        #     self.attach_reactions(
+        #         shared_shortname,
+        #         shared_post["reacts"],
+        #     )
+        pass
+
     def seed(self, count: int = 10) -> int:
         posts: list = Post.generate(count)
         created_posts_count = 0
@@ -57,26 +84,20 @@ class PostSeeder:
                 continue
 
             created_posts_count += 1
-            response = req.json()
-            original_shortname = response["records"][0]["shortname"]
+            original_shortname = req.json()["records"][0]["shortname"]
 
-            # Create the posts which shared this post
-            shared_posts = Post.generate(count=post["num_of_shares"], no_shares=True)
-            for shared_post in shared_posts:
-                created_posts_count += 1
-                shared_post["shared_from"] = original_shortname
-                shared_req = requests.post(
-                    url=f"{self.url}/managed/request",
-                    json=self.post_request_body(shared_post),
-                    headers={"Authorization": f"Bearer {self.token}"},
-                )
-                resshared_ponse = shared_req.json()
-                shared_shortname = resshared_ponse["records"][0]["shortname"]
-                # Create shared post comments
-                self.attach_comments(shared_shortname, shared_post["num_of_comments"])
+            # Create the posts that shares this post
+            self.create_shares(post)
+            created_posts_count += post["num_of_shares"]
 
             # Create original post comments
             self.attach_comments(original_shortname, post["num_of_comments"])
+
+            # Create original post reactions
+            self.attach_reactions(
+                original_shortname,
+                post["reacts"],
+            )
 
             # Randomly attach media
             if fake.random_element(elements=[1, 0, 0]):
@@ -106,8 +127,31 @@ class PostSeeder:
                 headers={"Authorization": f"Bearer {self.token}"},
             )
 
+    def attach_reactions(self, shortname: str, reactions: dict[str, int]):
+        for type, count in reactions.items():
+            for i in range(count):
+                requests.post(
+                    url=f"{self.url}/managed/request",
+                    json={
+                        "space_name": self.SPACE_NAME,
+                        "request_type": "create",
+                        "records": [
+                            {
+                                "resource_type": "reaction",
+                                "shortname": "auto",
+                                "subpath": f"{self.SUBPATH}/{shortname}",
+                                "attributes": {
+                                    "is_active": True,
+                                    "type": type,
+                                },
+                            }
+                        ],
+                    },
+                    headers={"Authorization": f"Bearer {self.token}"},
+                )
+
     def attach_media(self, shortname: str):
-        for i in range(fake.random_int(min=1, max=5)):
+        for _ in range(fake.random_int(min=1, max=5)):
             request_file = io.StringIO(
                 json.dumps(
                     {
@@ -128,7 +172,7 @@ class PostSeeder:
                     attachment[1],
                 ),
             }
-            res = requests.post(
+            requests.post(
                 url=f"{self.url}/managed/resource_with_payload",
                 headers={"Authorization": f"Bearer {self.token}"},
                 data={"space_name": self.SPACE_NAME},
