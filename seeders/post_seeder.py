@@ -43,32 +43,51 @@ class PostSeeder:
             ],
         }
 
-    def create_shares(self, original_post: dict):
-        # TODO: Create a Share attachment under the original post. Using /public/submit API 
-        # TODO: Create a shared post.
-        # TODO: Create a Relationship attachment under the shared post that refers to the original post. Using /public/submit API 
-        # shared_posts = Post.generate(
-        #     count=original_post["num_of_shares"], no_shares=True
-        # )
-        # for shared_post in shared_posts:
-        #     shared_post["is_shared"] = True
-        #     shared_req = requests.post(
-        #         url=f"{self.url}/managed/request",
-        #         json=self.post_request_body(shared_post),
-        #         headers={"Authorization": f"Bearer {self.token}"},
-        #     )
-        #     # Create shared post comments
-        #     shared_shortname = shared_req.json()["records"][0]["shortname"]
-        #     self.attach_comments(
-        #         shared_shortname,
-        #         shared_post["num_of_comments"],
-        #     )
-        #     # Create shared post reactions
-        #     self.attach_reactions(
-        #         shared_shortname,
-        #         shared_post["reacts"],
-        #     )
-        pass
+    def create_shares(self, original_post: dict, original_shortname: str):
+        for _ in range(original_post["num_of_shares"]):
+            # Create a Share attachment under the original post. Using /public/attach API
+            requests.post(
+                url=f"{self.url}/public/attach/{self.SPACE_NAME}",
+                json={
+                    "resource_type": "share",
+                    "shortname": "auto",
+                    "subpath": f"posts/{original_shortname}",
+                    "attributes": {
+                        "is_active": True,
+                        "author_locator": {
+                            "domain": "https://my-dmart-domain.com",
+                            "type": "user",
+                            "space_name": self.SPACE_NAME,
+                            "subpath": "users",
+                            "shortname": fake.name(),
+                        },
+                    },
+                },
+            )
+
+            # Create the shared post with a Relationship to the original post.
+            shared_post = (Post.generate(1, no_shares=True))[0]
+            shared_post["is_shared"] = True
+            shared_post_req_body = self.post_request_body(shared_post)
+            shared_post_req_body["records"][0]["attributes"]["relationships"] = [
+                {
+                    "related_to": {
+                        "domain": "https://my-dmart-domain.com",
+                        "type": "content",
+                        "space_name": self.SPACE_NAME,
+                        "subpath": self.SUBPATH,
+                        "shortname": original_shortname,
+                    },
+                    "attributes": {},
+                }
+            ]
+            req = requests.post(
+                url=f"{self.url}/managed/request",
+                json=shared_post_req_body,
+                headers={"Authorization": f"Bearer {self.token}"},
+            )
+            shared_shortname = req.json()["records"][0]["shortname"]
+            self.attach_comments(shared_shortname, shared_post["num_of_comments"])
 
     def seed(self, count: int = 10) -> int:
         posts: list = Post.generate(count)
@@ -81,13 +100,14 @@ class PostSeeder:
             )
 
             if req.status_code != 200:
+                print(req.json())
                 continue
 
             created_posts_count += 1
             original_shortname = req.json()["records"][0]["shortname"]
 
             # Create the posts that shares this post
-            self.create_shares(post)
+            self.create_shares(post, original_shortname)
             created_posts_count += post["num_of_shares"]
 
             # Create original post comments
@@ -100,7 +120,7 @@ class PostSeeder:
             )
 
             # Randomly attach media
-            if fake.random_element(elements=[1, 0, 0]):
+            if fake.random_element(elements=[1, 0]):
                 self.attach_media(original_shortname)
 
         print(f"Created {created_posts_count} post")
@@ -108,46 +128,46 @@ class PostSeeder:
     def attach_comments(self, shortname: str, num_of_comments: int):
         for i in range(num_of_comments):
             requests.post(
-                url=f"{self.url}/managed/request",
+                url=f"{self.url}/public/attach/{self.SPACE_NAME}",
                 json={
-                    "space_name": self.SPACE_NAME,
-                    "request_type": "create",
-                    "records": [
-                        {
-                            "resource_type": "comment",
-                            "shortname": "auto",
-                            "subpath": f"{self.SUBPATH}/{shortname}",
-                            "attributes": {
-                                "is_active": True,
-                                "body": fake.text(max_nb_chars=100),
-                            },
-                        }
-                    ],
+                    "resource_type": "comment",
+                    "shortname": "auto",
+                    "subpath": f"{self.SUBPATH}/{shortname}",
+                    "attributes": {
+                        "is_active": True,
+                        "body": fake.text(max_nb_chars=50),
+                        "author_locator": {
+                            "domain": "https://my-dmart-domain.com",
+                            "type": "user",
+                            "space_name": self.SPACE_NAME,
+                            "subpath": "users",
+                            "shortname": fake.name(),
+                        },
+                    },
                 },
-                headers={"Authorization": f"Bearer {self.token}"},
             )
 
     def attach_reactions(self, shortname: str, reactions: dict[str, int]):
         for type, count in reactions.items():
             for i in range(count):
                 requests.post(
-                    url=f"{self.url}/managed/request",
+                    url=f"{self.url}/public/attach/{self.SPACE_NAME}",
                     json={
-                        "space_name": self.SPACE_NAME,
-                        "request_type": "create",
-                        "records": [
-                            {
-                                "resource_type": "reaction",
-                                "shortname": "auto",
-                                "subpath": f"{self.SUBPATH}/{shortname}",
-                                "attributes": {
-                                    "is_active": True,
-                                    "type": type,
-                                },
-                            }
-                        ],
+                        "resource_type": "reaction",
+                        "shortname": "auto",
+                        "subpath": f"{self.SUBPATH}/{shortname}",
+                        "attributes": {
+                            "is_active": True,
+                            "type": type,
+                            "author_locator": {
+                                "domain": "https://my-dmart-domain.com",
+                                "type": "user",
+                                "space_name": self.SPACE_NAME,
+                                "subpath": "users",
+                                "shortname": fake.name(),
+                            },
+                        },
                     },
-                    headers={"Authorization": f"Bearer {self.token}"},
                 )
 
     def attach_media(self, shortname: str):
