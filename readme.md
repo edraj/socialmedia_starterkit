@@ -4,10 +4,10 @@
 
 #### seeders 
 seeder scripts. it's job is to seed a certain number of posts and for each post it does the follows:
-    - randomly chooses to attach media files or not with 50% chance for each post. Those media files could be images, or videos
-    - create a random number of shared posts (from 0 to 3)
-    - create a random number of comments (from 0 to 10)
-    - create a random number of reactions for each reaction type (from 0 to 15)
+- randomly chooses to attach media files or not with 50% chance for each post. Those media files could be images, or videos
+- create a random number of shared posts (from 0 to 3)
+- create a random number of comments (from 0 to 10)
+- create a random number of reactions for each reaction type (from 0 to 15)
 
 #### spaces 
 a sample of the data. It includes:
