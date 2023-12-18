@@ -12,11 +12,11 @@ class Post:
                 {
                     "content": fake.text(max_nb_chars=500),
                     "reacts": {
-                        "like": fake.random_int(min=2, max=15),
-                        "laughing": fake.random_int(min=2, max=15),
-                        "love": fake.random_int(min=2, max=15),
-                        "care": fake.random_int(min=2, max=15),
-                        "sad": fake.random_int(min=2, max=15),
+                        "like": fake.random_int(min=0, max=15),
+                        "laughing": fake.random_int(min=0, max=15),
+                        "love": fake.random_int(min=0, max=15),
+                        "care": fake.random_int(min=0, max=15),
+                        "sad": fake.random_int(min=0, max=15),
                     },
                     "num_of_shares": fake.random_int(min=0, max=3)
                     if not no_shares
